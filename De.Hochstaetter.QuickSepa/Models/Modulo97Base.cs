@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -28,7 +27,7 @@ namespace De.Hochstaetter.QuickSepa.Models
 
         public string OriginalText { get; }
 
-        protected abstract int GetModuloValue(char c);
+        protected abstract int AppendModuloValue(int currentRemainder, char c);
 
         public override string ToString() => OriginalText;
 
@@ -48,7 +47,7 @@ namespace De.Hochstaetter.QuickSepa.Models
             }
 
             normalizedText = builder.ToString();
-            return Text.Length >= 5;
+            return normalizedText.Length > 4;
         }
 
         public string GetNormalized() => TryGetNormalized(out var normalizedText)
@@ -72,12 +71,7 @@ namespace De.Hochstaetter.QuickSepa.Models
 
         private bool HasValidCheckSum(string normalizedText)
         {
-            return
-                (normalizedText.Substring(4, normalizedText.Length - 4) + normalizedText.Substring(0, 4))
-                .Aggregate
-                (
-                    BigInteger.Zero, (currentModuloValue, character) => currentModuloValue * (character < 'A' ? new BigInteger(10) : new BigInteger(100)) + GetModuloValue(character)
-                ) % 97 == 1;
+            return normalizedText.Skip(4).Concat(normalizedText.Take(4)).Aggregate(0, AppendModuloValue) == 1;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
