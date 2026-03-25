@@ -69,9 +69,9 @@ namespace De.Hochstaetter.QuickSepa.Models
             }
         }
 
-        private bool HasValidCheckSum(string normalizedText)
+        private bool HasValidCheckSum(string iban)
         {
-            return normalizedText.Skip(4).Concat(normalizedText.Take(4)).Aggregate(0, AppendModuloValue) == 1;
+            return iban.Skip(4).Concat(iban.Take(4)).Aggregate(0, AppendModuloValue) == 1;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

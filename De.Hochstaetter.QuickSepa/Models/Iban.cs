@@ -8,6 +8,7 @@ public class Iban(string text, bool normalizeAndValidate = false) : Modulo97Base
     {
         >= '0' and <= '9' => currentRemainder * 10 + c - '0',
         >= 'A' and <= 'Z' => currentRemainder * 100 + c - 'A' + 10,
+        _ when (char.IsWhiteSpace(c)) => currentRemainder,
         _ => throw new FormatException("IBAN contains incorrect characters"),
     } % 97;
 }
