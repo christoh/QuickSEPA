@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="De.Hochstaetter.QuickSepa.Tests/De.Hochstaetter.QuickSepa.Tests.csproj" />
+  <Project Path="De.Hochstaetter.QuickSepa/De.Hochstaetter.QuickSepa.csproj" Id="37a41706-b29a-495f-8ab8-f0166e5c7c97" />
+</Solution>
