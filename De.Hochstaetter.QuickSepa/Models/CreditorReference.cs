@@ -43,8 +43,7 @@ public class CreditorReference : Modulo97Base
     /// <inheritdoc/>
     public override bool TryGetNormalized(out string normalizedText)
     {
-        normalizedText = string.Empty;
-        return Text.StartsWith("RF") && base.TryGetNormalized(out normalizedText);
+        return base.TryGetNormalized(out normalizedText) && normalizedText.StartsWith("RF");
     }
 
     public static CreditorReference FromBareReference(string text)

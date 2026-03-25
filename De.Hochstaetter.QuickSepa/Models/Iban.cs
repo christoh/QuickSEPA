@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace De.Hochstaetter.QuickSepa.Models;
 
@@ -31,5 +32,20 @@ namespace De.Hochstaetter.QuickSepa.Models;
 /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null"/></exception>
 public class Iban(string text, bool normalizeAndValidate = false) : Modulo97Base(text, normalizeAndValidate)
 {
+    public static Iban FromCountryCodeAndBban(string countryCode, string bban)
+    {
+        if (!TryNormalizeText(countryCode, out var normalizedCountryCode) || normalizedCountryCode.Length != 2)
+        {
+            throw new FormatException("Country code must be exactly 2 ASCII letters");
+        }
+
+        if (!TryNormalizeText(bban, out var normalizedBban) || normalizedBban.Length < 1)
+        {
+            throw new FormatException("BBAN must have at least one ASCII letter or ASCII digit and no illegal characters");
+        }
+
+        var checksum = 98 - normalizedBban.Concat(normalizedCountryCode).Concat("00").Aggregate(0, UpdateRemainder);
+        return new Iban($"{normalizedCountryCode}{checksum:D2}{normalizedBban}");
+    }
 }
 
