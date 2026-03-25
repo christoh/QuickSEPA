@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,7 +14,7 @@ namespace De.Hochstaetter.QuickSepa.Models
     {
         protected Modulo97Base(string text, bool normalizeAndValidate = false)
         {
-            OriginalText = Text = text ?? throw new ArgumentNullException(nameof(text), "Parameter cannot be null"); ;
+            OriginalText = Text = text ?? throw new ArgumentNullException(nameof(text), "Parameter cannot be null");
 
             if (normalizeAndValidate)
             {
