@@ -27,4 +27,44 @@ public class IbanTests
         var iban = new Iban(ibanString);
         Assert.False(iban.IsValid());
     }
+
+    [Theory]
+    [InlineData("RF45G72UUR")]
+    [InlineData("RF6518K5")]
+    public void TestCreditorReference_Success(string text)
+    {
+        var creditorReference = new CreditorReference(text);
+        Assert.True(creditorReference.IsValid());
+    }
+
+    [Theory]
+    [InlineData("RF35C4")]
+    [InlineData("RF214377")]
+    public void TestCreditorReference_Failure_Checksum(string text)
+    {
+        var creditorReference = new CreditorReference(text);
+        Assert.False(creditorReference.IsValid());
+    }
+
+    [Theory]
+    //[InlineData("DE00210501700012345678")]
+    [InlineData("RF65 18K5")]
+    [InlineData("RF45g72u UR")]
+    public void TestCreditorReference_Success_From_Bare(string bareReference)
+    {
+        var creditorReference = CreditorReference.FromBareReference(bareReference[4..]);
+        Assert.Equal(new string(bareReference.Where(c=>!char.IsWhiteSpace(c)).ToArray()).ToUpperInvariant(),creditorReference.Text);
+    }
+
+    [Theory]
+    [InlineData("GB18 WEST 1234 5698 7654 32\t")]
+    [InlineData("IE53 IRCE 9205 0112 3456 78")]
+    [InlineData("BI9620001100010000123456789")]
+    [InlineData("de44 1234 1234 1234 1234 12")]
+    [InlineData("DE21210501700012345678")]
+    public void TestCreditorReference_Failure_Does_Not_Start_With_RF(string text)
+    {
+        var creditorReference = new CreditorReference(text);
+        Assert.False(creditorReference.IsValid());
+    }
 }
