@@ -114,8 +114,26 @@ namespace De.Hochstaetter.QuickSepa.Models
 
         private static bool HasValidCheckSum(string normalizedText)
         {
-            return normalizedText.Skip(4).Concat(normalizedText.Take(4)).Aggregate(0, UpdateRemainder) == 1;
+            var remainder = 0;
+
+            for (var i = 4; i < normalizedText.Length; i++)
+            {
+                remainder = UpdateRemainder(remainder, normalizedText[i]);
+            }
+
+            for (var i = 0; i < 4; i++)
+            {
+                remainder = UpdateRemainder(remainder, normalizedText[i]);
+            }
+
+            return remainder == 1;
         }
+
+        //// This implementation looks cooler but is slower
+        //private static bool HasValidCheckSum(string normalizedText)
+        //{
+        //    return normalizedText.Skip(4).Concat(normalizedText.Take(4)).Aggregate(0, UpdateRemainder) == 1;
+        //}
 
         protected static int UpdateRemainder(int currentRemainder, char c) => c switch
         {

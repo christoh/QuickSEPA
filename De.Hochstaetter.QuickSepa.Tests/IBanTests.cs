@@ -1,8 +1,10 @@
-﻿using De.Hochstaetter.QuickSepa.Models;
+﻿using System.Runtime.InteropServices.JavaScript;
+using System.Text;
+using De.Hochstaetter.QuickSepa.Models;
 
 namespace De.Hochstaetter.QuickSepa.Tests;
 
-public class IbanTests
+public class IbanTests(ITestOutputHelper testOutputHelper)
 {
     [Theory]
     [InlineData("GB82 WEST 1234 5698 7654 32\t")]
@@ -16,6 +18,62 @@ public class IbanTests
         Assert.True(iban.IsValid());
     }
 
+    [Fact]
+    public void Test_Iban_Success_Benchmark()
+    {
+        const string ibanString = "de07 1234 12\r34 1234 1234 12";
+        // Ensure JIT compilation
+        var iban = new Iban(ibanString);
+        Assert.True(iban.IsValid());
+
+        // Start benchmark
+        var startTime = DateTime.UtcNow;
+        const int amount = 100_000_000;
+
+        Parallel.For(0, amount, _ =>
+        {
+            iban = new Iban(ibanString);
+            Assert.True(iban.IsValid());
+        });
+
+        var duration = (DateTime.UtcNow - startTime).TotalSeconds;
+        testOutputHelper.WriteLine($"Tested {amount:N0} IBANs in {duration:N3} seconds.");
+        testOutputHelper.WriteLine($"Throughput: {amount / duration / 1e6:N1} Mega IBANs/s");
+        testOutputHelper.WriteLine($"Average duration per IBAN: {duration * 1e9 / amount} ns");
+    }
+
+    [Fact]
+    public void Test_Iban_Generator_Success_Benchmark()
+    {
+        const int amount = 10_000_000;
+        var random = new Random(unchecked((int)DateTime.Now.Ticks));
+        var bbanArray = new string[amount];
+
+        Parallel.For(0, amount, i =>
+        {
+            var stringBuilder = new StringBuilder(18);
+            for (var j = 0; j < 18; j++)
+            {
+                stringBuilder.Append((char)(random.Next(0, 10) + '0'));
+            }
+
+            bbanArray[i] = stringBuilder.ToString();
+        });
+
+        // Start benchmark
+        var startTime = DateTime.UtcNow;
+
+        Parallel.For(0, amount, i =>
+        {
+            var iban = Iban.FromCountryCodeAndBban("de", bbanArray[i]);
+            Assert.Equal(22,iban.Text.Length);
+        });
+
+        var duration = (DateTime.UtcNow - startTime).TotalSeconds;
+        testOutputHelper.WriteLine($"Generated {amount:N0} IBANs in {duration:N3} seconds.");
+        testOutputHelper.WriteLine($"Throughput: {amount / duration / 1e6:N1} Mega IBANs/s");
+        testOutputHelper.WriteLine($"Average duration per IBAN: {duration * 1e9 / amount} ns");
+    }
 
     [Theory]
     [InlineData("GB82 WEST 1234 5698 7654 32\t")]
